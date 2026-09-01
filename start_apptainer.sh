@@ -3,7 +3,12 @@
 
 echo "Starting Neo4j via Apptainer..."
 export NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-password123}
-apptainer run --env NEO4J_AUTH=$NEO4J_AUTH docker://neo4j:5-community > neo4j.log 2>&1 &
+mkdir -p neo4j_data neo4j_logs
+apptainer run --writable-tmpfs \
+    --bind ./neo4j_data:/data \
+    --bind ./neo4j_logs:/logs \
+    --env NEO4J_AUTH=$NEO4J_AUTH \
+    docker://neo4j:5-community > neo4j.log 2>&1 &
 NEO4J_PID=$!
 echo "Neo4j started with PID $NEO4J_PID"
 
@@ -20,11 +25,17 @@ fi
 
 echo "Starting Streamlit MVP via Apptainer..."
 # We use a container that has both Python and Node (for localtunnel)
-apptainer exec docker://nikolaik/python-nodejs:python3.10-nodejs18 bash -c "
-    pip install -r requirements.txt
-    npm install -g localtunnel
+apptainer exec --writable-tmpfs docker://nikolaik/python-nodejs:python3.10-nodejs18 bash -c "
+    export PATH=\$HOME/.local/bin:\$PATH
+    pip install --user -r requirements.txt
+    npm install localtunnel
     bash run.sh
 "
 
-# Cleanup on exit
-trap "kill $NEO4J_PID $NIM_PID" EXIT
+# Cleanup on exit safely
+cleanup() {
+    echo "Shutting down services..."
+    [ -n "$NEO4J_PID" ] && kill $NEO4J_PID
+    [ -n "$NIM_PID" ] && kill $NIM_PID
+}
+trap cleanup EXIT
