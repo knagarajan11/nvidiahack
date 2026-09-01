@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.env
+localtunnel.log
+neo4j_data/

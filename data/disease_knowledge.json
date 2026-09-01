@@ -1,0 +1,72 @@
+[
+  {
+    "disease": "Healthy",
+    "symptoms": "Leaves appear green and generally free of abnormal spots or lesions.",
+    "causes": "No visible disease symptoms.",
+    "recommendations": "Continue normal watering, nutrition, monitoring and good garden hygiene.",
+    "prevention": "Maintain good airflow, appropriate watering and inspect plants regularly."
+  },
+  {
+    "disease": "Bacterial spot",
+    "symptoms": "Small dark water-soaked spots may occur on leaves and fruit.",
+    "causes": "Bacterial infection favored by wet conditions and splashing water.",
+    "recommendations": "Remove severely affected foliage, avoid overhead watering and improve airflow.",
+    "prevention": "Avoid working with wet plants and reduce leaf wetness."
+  },
+  {
+    "disease": "Early blight",
+    "symptoms": "Brown circular lesions, often with concentric ring patterns, and yellowing around affected tissue.",
+    "causes": "Fungal disease commonly associated with Alternaria species.",
+    "recommendations": "Remove severely affected leaves, improve airflow, mulch soil to reduce splash and avoid overhead watering.",
+    "prevention": "Rotate crops, remove infected plant debris and keep foliage dry."
+  },
+  {
+    "disease": "Late blight",
+    "symptoms": "Dark irregular lesions that can expand rapidly, sometimes with pale or gray growth under humid conditions.",
+    "causes": "Disease caused by Phytophthora infestans.",
+    "recommendations": "Remove severely infected material and reduce prolonged leaf wetness. Seek local agricultural guidance for treatment options.",
+    "prevention": "Improve airflow, avoid overhead watering and monitor plants during cool wet weather."
+  },
+  {
+    "disease": "Leaf mold",
+    "symptoms": "Yellow patches may develop on the upper leaf surface with olive or grayish fungal growth underneath.",
+    "causes": "Fungal disease favored by high humidity.",
+    "recommendations": "Increase ventilation, reduce humidity and remove severely affected leaves.",
+    "prevention": "Provide adequate plant spacing and avoid prolonged leaf wetness."
+  },
+  {
+    "disease": "Septoria leaf spot",
+    "symptoms": "Small circular spots with dark borders and lighter centers, frequently beginning on older leaves.",
+    "causes": "Fungal disease caused by Septoria species.",
+    "recommendations": "Remove heavily affected leaves, improve airflow and avoid overhead irrigation.",
+    "prevention": "Remove plant debris and maintain good garden sanitation."
+  },
+  {
+    "disease": "Spider mites",
+    "symptoms": "Fine stippling, yellowing or bronzing of leaves; severe infestations may produce webbing.",
+    "causes": "Feeding damage from spider mites.",
+    "recommendations": "Inspect leaf undersides and use an appropriate integrated pest-management approach.",
+    "prevention": "Monitor plants regularly and avoid conditions that encourage mite outbreaks."
+  },
+  {
+    "disease": "Target spot",
+    "symptoms": "Brown lesions that can have concentric target-like rings.",
+    "causes": "Fungal disease associated with warm, humid conditions.",
+    "recommendations": "Remove severely affected leaves, improve airflow and minimize leaf wetness.",
+    "prevention": "Use good sanitation and avoid prolonged moisture on foliage."
+  },
+  {
+    "disease": "Tomato yellow leaf curl virus",
+    "symptoms": "Leaf curling, yellowing and reduced plant growth may occur.",
+    "causes": "Viral disease commonly associated with whitefly transmission.",
+    "recommendations": "Remove severely affected plants when appropriate and control vectors using integrated pest management.",
+    "prevention": "Monitor and manage whiteflies and remove infected plant material."
+  },
+  {
+    "disease": "Tomato mosaic virus",
+    "symptoms": "Mottled or mosaic patterns on leaves, sometimes accompanied by distorted growth.",
+    "causes": "Viral infection.",
+    "recommendations": "Remove severely affected plants and sanitize hands and gardening tools.",
+    "prevention": "Use clean tools, avoid handling plants after touching infected material and use healthy planting material."
+  }
+]

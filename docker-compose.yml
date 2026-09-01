@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-password123}
+    volumes:
+      - neo4j_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "http://localhost:7474", "-O", "-"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  nim:
+    image: nvcr.io/nim/meta/llama-3.2-11b-vision-instruct:latest
+    container_name: local-nim-vision
+    ports:
+      - "8000:8000"
+    environment:
+      - NGC_API_KEY=${NGC_API_KEY}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  streamlit:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-password123}
+      - NIM_API_BASE_URL=http://nim:8000/v1
+      # Note: Local NIM doesn't require an API key for queries if running locally,
+      # but some client libraries might expect a placeholder.
+      - NVIDIA_API_KEY=local_placeholder
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      nim:
+        condition: service_started
+    # The entrypoint in Dockerfile will start localtunnel and then Streamlit
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
