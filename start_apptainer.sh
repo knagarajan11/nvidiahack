@@ -13,15 +13,11 @@ NEO4J_PID=$!
 echo "Neo4j started with PID $NEO4J_PID"
 
 echo "Starting Local NVIDIA NIM via Apptainer..."
-# Assuming you have llama32-vision.sif in your home directory or current directory
-# Ensure NGC_API_KEY is exported before running this script
-if [ -f "llama32-vision.sif" ]; then
-    apptainer run --nv --env NGC_API_KEY=$NGC_API_KEY llama32-vision.sif > nim.log 2>&1 &
-    NIM_PID=$!
-    echo "NIM started with PID $NIM_PID"
-else
-    echo "WARNING: llama32-vision.sif not found in current directory. Make sure NIM is running!"
-fi
+# We use an environment variable or default to llama32-vision.sif
+NIM_SIF="${NIM_SIF_PATH:-llama32-vision.sif}"
+apptainer run --nv --env NGC_API_KEY=$NGC_API_KEY "$NIM_SIF" > nim.log 2>&1 &
+NIM_PID=$!
+echo "NIM started with PID $NIM_PID using image $NIM_SIF"
 
 echo "Starting Streamlit MVP via Apptainer..."
 # We use a container that has both Python and Node (for localtunnel)
