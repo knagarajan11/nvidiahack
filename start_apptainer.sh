@@ -39,6 +39,8 @@ trap cleanup EXIT INT TERM
 
 echo "Starting Neo4j via Apptainer..."
 export NEO4J_AUTH="neo4j/${NEO4J_PASSWORD:-password123}"
+# Clear old data to ensure NEO4J_AUTH takes effect (Neo4j ignores it if data already exists)
+rm -rf neo4j_data neo4j_logs
 mkdir -p neo4j_data neo4j_logs
 apptainer run --writable-tmpfs --cleanenv \
     --bind ./neo4j_data:/data \
