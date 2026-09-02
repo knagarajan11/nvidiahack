@@ -74,7 +74,6 @@ apptainer exec --writable-tmpfs \
     --env NEO4J_PASSWORD="${NEO4J_PASSWORD:-password123}" \
     --env NIM_API_BASE_URL=https://integrate.api.nvidia.com/v1 \
     --env NVIDIA_API_KEY="$NGC_API_KEY" \
-    --net --network=host \
     docker://nikolaik/python-nodejs:python3.10-nodejs18 bash -c "
     export PATH=\$HOME/.local/bin:\$PATH
     pip install --user -r requirements.txt
