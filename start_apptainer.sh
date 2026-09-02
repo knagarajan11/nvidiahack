@@ -1,5 +1,6 @@
 #!/bin/bash
 # Start script for DGX systems using Apptainer instead of Docker
+# Uses NVIDIA Cloud API for inference (no local NIM needed)
 set -e
 
 # Resolve script directory so .env is always found regardless of where you run from
@@ -25,21 +26,12 @@ if [ -z "$NGC_API_KEY" ] || [ "$NGC_API_KEY" = "your_ngc_api_key_here" ]; then
     exit 1
 fi
 
-# Authenticate with NGC container registry (required to pull NIM images)
-echo "Authenticating with NGC container registry..."
-echo "$NGC_API_KEY" | apptainer remote login --username '$oauthtoken' --password-stdin docker://nvcr.io 2>/dev/null \
-    || apptainer registry login --username '$oauthtoken' --password "$NGC_API_KEY" docker://nvcr.io 2>/dev/null \
-    || echo "WARNING: Could not auto-login to nvcr.io. If the SIF is not cached, pull may fail."
-
-# Set APPTAINER_DOCKER_USERNAME and PASSWORD so that apptainer can pull from nvcr.io
-export APPTAINER_DOCKER_USERNAME='$oauthtoken'
-export APPTAINER_DOCKER_PASSWORD="$NGC_API_KEY"
+echo "Using NVIDIA Cloud API at https://integrate.api.nvidia.com/v1"
 
 # Cleanup on exit safely — register trap BEFORE starting background processes
 cleanup() {
     echo "Shutting down services..."
     [ -n "$NEO4J_PID" ] && kill "$NEO4J_PID" 2>/dev/null
-    [ -n "$NIM_PID" ] && kill "$NIM_PID" 2>/dev/null
     wait 2>/dev/null
     echo "All services stopped."
 }
@@ -56,45 +48,31 @@ apptainer run --writable-tmpfs \
 NEO4J_PID=$!
 echo "Neo4j started with PID $NEO4J_PID"
 
-echo "Starting Local NVIDIA NIM via Apptainer..."
-# Use a pre-built SIF or pull from nvcr.io
-NIM_SIF="${NIM_SIF_PATH:-docker://nvcr.io/nim/meta/llama-3.2-11b-vision-instruct:latest}"
-mkdir -p nim_cache
-apptainer run --nv \
-    --writable-tmpfs \
-    --bind ./nim_cache:/opt/nim/.cache \
-    --env NGC_API_KEY="$NGC_API_KEY" \
-    "$NIM_SIF" > nim.log 2>&1 &
-NIM_PID=$!
-echo "NIM started with PID $NIM_PID using image $NIM_SIF"
-
-# Wait for NIM to become healthy before starting Streamlit
-echo "Waiting for NIM to be ready (checking http://localhost:8000/v1/models)..."
-for i in $(seq 1 120); do
-    if curl -sf http://localhost:8000/v1/models > /dev/null 2>&1; then
-        echo "NIM is ready!"
+# Wait for Neo4j to be ready
+echo "Waiting for Neo4j to be ready..."
+for i in $(seq 1 60); do
+    if curl -sf http://localhost:7474 > /dev/null 2>&1; then
+        echo "Neo4j is ready!"
         break
     fi
-    if ! kill -0 "$NIM_PID" 2>/dev/null; then
-        echo "ERROR: NIM process died. Check nim.log for details:"
-        tail -20 nim.log
+    if ! kill -0 "$NEO4J_PID" 2>/dev/null; then
+        echo "ERROR: Neo4j process died. Check neo4j.log:"
+        tail -20 neo4j.log
         exit 1
     fi
-    if [ "$i" -eq 120 ]; then
-        echo "ERROR: NIM did not start within 120 seconds. Check nim.log:"
-        tail -20 nim.log
-        exit 1
+    if [ "$i" -eq 60 ]; then
+        echo "WARNING: Neo4j may still be starting. Continuing anyway..."
     fi
-    sleep 5
+    sleep 2
 done
 
 echo "Starting Streamlit MVP via Apptainer..."
-# We use a container that has both Python and Node (for localtunnel/pinggy)
+# Point to NVIDIA Cloud API instead of local NIM
 apptainer exec --writable-tmpfs \
     --env NEO4J_URI=bolt://localhost:7687 \
     --env NEO4J_USER=neo4j \
     --env NEO4J_PASSWORD="${NEO4J_PASSWORD:-password123}" \
-    --env NIM_API_BASE_URL=http://localhost:8000/v1 \
+    --env NIM_API_BASE_URL=https://integrate.api.nvidia.com/v1 \
     --env NVIDIA_API_KEY="$NGC_API_KEY" \
     --net --network=host \
     docker://nikolaik/python-nodejs:python3.10-nodejs18 bash -c "
@@ -102,3 +80,4 @@ apptainer exec --writable-tmpfs \
     pip install --user -r requirements.txt
     bash run.sh
 "
+

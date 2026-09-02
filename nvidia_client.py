@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# We expect NIM_API_BASE_URL to point to the local NIM or external
-API_BASE_URL = os.getenv("NIM_API_BASE_URL", "http://localhost:8000/v1")
-# For local NIM, the API key isn't strictly required by the server, but the OpenAI client requires something.
-API_KEY = os.getenv("NVIDIA_API_KEY", "local_nim")
+# Default to NVIDIA cloud API; override with NIM_API_BASE_URL for local NIM
+API_BASE_URL = os.getenv("NIM_API_BASE_URL", "https://integrate.api.nvidia.com/v1")
+# Use NGC_API_KEY for cloud, or NVIDIA_API_KEY for local NIM
+API_KEY = os.getenv("NVIDIA_API_KEY") or os.getenv("NGC_API_KEY", "")
 
 client = OpenAI(
     base_url=API_BASE_URL,
