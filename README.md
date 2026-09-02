@@ -1,4 +1,4 @@
-# Plant Disease Identification MVP
+# 🌿 CropGuard — AI-Powered Crop Disease Detection
 
 This is an end-to-end AI application for plant disease identification, tailored to run on an NVIDIA DGX system. It provides farmers with a mobile-friendly web interface to upload pictures of plant leaves, analyzes them using an NVIDIA NIM microservice (Llama 3.2 Vision), and cross-references the findings against an agricultural knowledge base stored in Neo4j (GraphRAG).
 
