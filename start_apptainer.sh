@@ -33,16 +33,25 @@ cleanup() {
     echo "Shutting down services..."
     [ -n "$NEO4J_PID" ] && kill "$NEO4J_PID" 2>/dev/null
     wait 2>/dev/null
+    # Clean up temp directories
+    [ -n "$NEO4J_TMPDIR" ] && rm -rf "$NEO4J_TMPDIR" 2>/dev/null
+    [ -n "$NEO4J_LOGDIR" ] && rm -rf "$NEO4J_LOGDIR" 2>/dev/null
     echo "All services stopped."
 }
 trap cleanup EXIT INT TERM
 
 echo "Starting Neo4j via Apptainer..."
 export NEO4J_AUTH="neo4j/${NEO4J_PASSWORD:-password123}"
-# No persistent data dir — Neo4j runs ephemeral, seed_db.py re-seeds on each start
+# Create a temp directory for Neo4j data (tmpfs is too small for Neo4j transaction logs)
+NEO4J_TMPDIR=$(mktemp -d /tmp/neo4j_data_XXXXXX)
+NEO4J_LOGDIR=$(mktemp -d /tmp/neo4j_logs_XXXXXX)
+echo "Neo4j data dir: $NEO4J_TMPDIR"
+# Pin Neo4j version to avoid 'system' database name validation bug in latest 5.x
 apptainer run --writable-tmpfs --cleanenv \
+    --bind "$NEO4J_TMPDIR":/data \
+    --bind "$NEO4J_LOGDIR":/logs \
     --env NEO4J_AUTH="$NEO4J_AUTH" \
-    docker://neo4j:5-community > neo4j.log 2>&1 &
+    docker://neo4j:5.20-community > neo4j.log 2>&1 &
 NEO4J_PID=$!
 echo "Neo4j started with PID $NEO4J_PID"
 
