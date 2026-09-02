@@ -15,7 +15,12 @@ echo "Neo4j started with PID $NEO4J_PID"
 echo "Starting Local NVIDIA NIM via Apptainer..."
 # We use an environment variable or default to llama32-vision.sif
 NIM_SIF="${NIM_SIF_PATH:-llama32-vision.sif}"
-apptainer run --nv --env NGC_API_KEY=$NGC_API_KEY "$NIM_SIF" > nim.log 2>&1 &
+mkdir -p nim_cache
+apptainer run --nv \
+    --writable-tmpfs \
+    --bind ./nim_cache:/opt/nim/.cache \
+    --env NGC_API_KEY=$NGC_API_KEY \
+    "$NIM_SIF" > nim.log 2>&1 &
 NIM_PID=$!
 echo "NIM started with PID $NIM_PID using image $NIM_SIF"
 
