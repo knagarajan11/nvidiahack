@@ -39,12 +39,8 @@ trap cleanup EXIT INT TERM
 
 echo "Starting Neo4j via Apptainer..."
 export NEO4J_AUTH="neo4j/${NEO4J_PASSWORD:-password123}"
-# Clear old data to ensure NEO4J_AUTH takes effect (Neo4j ignores it if data already exists)
-rm -rf neo4j_data neo4j_logs
-mkdir -p neo4j_data neo4j_logs
+# No persistent data dir — Neo4j runs ephemeral, seed_db.py re-seeds on each start
 apptainer run --writable-tmpfs --cleanenv \
-    --bind ./neo4j_data:/data \
-    --bind ./neo4j_logs:/logs \
     --env NEO4J_AUTH="$NEO4J_AUTH" \
     docker://neo4j:5-community > neo4j.log 2>&1 &
 NEO4J_PID=$!
