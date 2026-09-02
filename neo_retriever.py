@@ -15,7 +15,7 @@ class DiseaseRAG:
         # based on the disease name to retrieve context.
         query = """
         MATCH (d:Disease)
-        WHERE toLower(d.name) CONTAINS toLower($query) OR toLower($query) CONTAINS toLower(d.name)
+        WHERE toLower(d.name) CONTAINS toLower($search_term) OR toLower($search_term) CONTAINS toLower(d.name)
         RETURN d.name AS disease, d.symptoms AS symptoms, d.causes AS causes, 
                d.recommendations AS recommendations, d.prevention AS prevention
         LIMIT $limit
@@ -23,7 +23,7 @@ class DiseaseRAG:
         
         results = []
         with self.driver.session() as session:
-            records = session.run(query, query=disease_query, limit=top_k)
+            records = session.run(query, search_term=disease_query, limit=top_k)
             for record in records:
                 results.append({
                     "score": 1.0, # Dummy score since it's an exact/partial match
