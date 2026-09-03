@@ -70,3 +70,13 @@ If you are on a shared DGX cluster (like SLURM) where Docker is not available an
 
 *   **Database Seeding**: The Neo4j database is seeded automatically when the Streamlit container starts via `seed_db.py`.
 *   **Customizing the Knowledge Base**: Edit `data/disease_knowledge.json` or `data/leaf-map.json` and restart the containers to update the Neo4j graph.
+
+## CREATE TUNNEL for Local host run below commands in a different terminal on dgx01 
+
+* **Go back to your open terminal on dgx01 (where your app is currently running) and execute these exact 3 commands to download and run
+* **the **Cloudflare Tunnel:
+cd nvidiahack
+bash
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O cloudflared
+chmod +x cloudflared
+./cloudflared tunnel --url http://localhost:8501
