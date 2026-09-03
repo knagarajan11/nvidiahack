@@ -41,6 +41,14 @@ If you are on a shared DGX cluster (like SLURM) where Docker is not available an
    git clone https://github.com/knagarajan11/nvidiahack.git
    cd nvidiahack
    ```
+   1.b **Use this command only for repeated runs**
+         ``bash 
+         git fetch origin main
+git reset --hard origin/main
+chmod +x start_apptainer.sh run.sh
+
+./start_apptainer.sh
+```
 
 2. **Configure your environment variables:**
    ```bash
